@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Kelvim IA — Kelvim Ltda</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#08080f;--s1:#0f0f1a;--s2:#161625;--s3:#1e1e30;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.12);
+  --ac:#6c63ff;--ac2:#9d8fff;--ac3:#c4baff;
+  --gr:#10b981;--rd:#f87171;--yw:#fbbf24;--bl:#60a5fa;
+  --t1:#eeeef8;--t2:#9898b8;--t3:#50506a;
+  --r:13px;--rs:8px;--sbw:268px;
+}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:'Syne',sans-serif;}
+#cvs{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.25;}
+#app{position:relative;z-index:1;display:flex;height:100vh;overflow:hidden;}
+
+/* SIDEBAR */
+#sb{width:var(--sbw);min-width:var(--sbw);background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;overflow:hidden;flex-shrink:0;transition:transform .28s cubic-bezier(.4,0,.2,1);z-index:50;}
+.sb-head{padding:16px 12px 10px;border-bottom:1px solid var(--b1);flex-shrink:0;}
+.sb-logo{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.sb-orb{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:900;color:#fff;box-shadow:0 4px 16px rgba(108,99,255,.5);flex-shrink:0;}
+.sb-name{font-size:17px;font-weight:800;letter-spacing:-.5px;}
+.sb-co{font-size:10px;color:var(--t3);letter-spacing:.5px;}
+.new-btn{width:100%;padding:9px 14px;background:rgba(108,99,255,.14);border:1px solid rgba(108,99,255,.3);border-radius:var(--rs);color:var(--ac3);font-family:'Syne',sans-serif;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:7px;}
+.new-btn:hover,.new-btn:active{background:rgba(108,99,255,.28);border-color:rgba(108,99,255,.5);}
+.sb-sec{font-size:10px;color:var(--t3);letter-spacing:1.3px;font-weight:700;text-transform:uppercase;padding:10px 14px 4px;flex-shrink:0;}
+#hist-list{flex:1;overflow-y:auto;padding:0 8px 8px;-webkit-overflow-scrolling:touch;}
+#hist-list::-webkit-scrollbar{width:3px;}
+#hist-list::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+.hi{padding:8px 10px;border-radius:var(--rs);font-size:12px;color:var(--t2);cursor:pointer;transition:all .12s;border:1px solid transparent;display:flex;align-items:center;gap:7px;margin-bottom:2px;}
+.hi:hover,.hi:active{background:var(--s2);color:var(--t1);}
+.hi.on{background:rgba(108,99,255,.15);color:var(--ac3);border-color:rgba(108,99,255,.22);}
+.hi-ico{font-size:13px;flex-shrink:0;}
+.hi-info{flex:1;min-width:0;}
+.hi-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px;}
+.hi-meta{font-size:10px;color:var(--t3);margin-top:1px;}
+.hi-del{opacity:0;font-size:12px;color:var(--t3);flex-shrink:0;padding:2px 5px;border-radius:4px;border:none;background:transparent;cursor:pointer;}
+.hi:hover .hi-del{opacity:1;}
+.hi-del:hover{background:rgba(248,113,113,.15);color:var(--rd);}
+.sb-foot{padding:10px 12px;border-top:1px solid var(--b1);flex-shrink:0;}
+.sb-badge{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--rs);margin-bottom:7px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--gr);box-shadow:0 0 8px var(--gr);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.sb-model{font-size:11px;color:var(--t2);}
+.sb-model strong{color:var(--t1);font-size:11px;display:block;}
+.sb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;}
+.stat{padding:6px 4px;background:var(--s2);border:1px solid var(--b1);border-radius:var(--rs);text-align:center;}
+.stat-n{font-size:15px;font-weight:800;color:var(--ac3);}
+.stat-l{font-size:9px;color:var(--t3);}
+
+#overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:49;display:none;backdrop-filter:blur(3px);}
+
+/* MAIN */
+#main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0;}
+#hdr{padding:11px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px;background:rgba(8,8,15,.92);backdrop-filter:blur(14px);flex-shrink:0;}
+#menu-btn{width:36px;height:36px;border:none;background:rgba(255,255,255,.06);border-radius:var(--rs);color:var(--t2);font-size:18px;cursor:pointer;display:none;align-items:center;justify-content:center;flex-shrink:0;}
+#menu-btn:active{background:rgba(255,255,255,.14);}
+.hdr-info{flex:1;min-width:0;}
+.hdr-title{font-size:14px;font-weight:800;}
+.hdr-sub{font-size:10.5px;color:var(--t3);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.badges{display:flex;gap:4px;flex-shrink:0;}
+.badge{padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;border:1px solid;white-space:nowrap;}
+.badge.c{color:var(--bl);border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.07);}
+.badge.t{color:var(--gr);border-color:rgba(16,185,129,.3);background:rgba(16,185,129,.07);}
+.badge.k{color:var(--yw);border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.07);}
+
+/* MESSAGES */
+#msgs{flex:1;overflow-y:auto;padding:18px 0;display:flex;flex-direction:column;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;}
+#msgs::-webkit-scrollbar{width:4px;}
+#msgs::-webkit-scrollbar-thumb{background:var(--b2);border-radius:2px;}
+#wlc{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;gap:13px;padding:28px 20px;text-align:center;}
+.wlc-orb{width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 35%,var(--ac2),var(--ac));box-shadow:0 0 50px rgba(108,99,255,.5),0 0 100px rgba(108,99,255,.18);animation:float 3.5s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.wlc-title{font-size:26px;font-weight:800;letter-spacing:-1px;}
+.wlc-title em{font-style:normal;background:linear-gradient(135deg,var(--ac2),var(--ac3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.wlc-sub{font-size:13px;color:var(--t2);max-width:360px;line-height:1.7;}
+.wlc-sub strong{color:var(--ac3);}
+.sugs{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%;max-width:480px;margin-top:4px;}
+.sg{padding:11px 13px;border-radius:var(--r);background:var(--s1);border:1px solid var(--b1);cursor:pointer;transition:all .18s;text-align:left;}
+.sg:hover,.sg:active{background:var(--s2);border-color:rgba(108,99,255,.3);transform:translateY(-2px);}
+.sg-ico{font-size:17px;margin-bottom:4px;}
+.sg-txt{font-size:11.5px;color:var(--t2);line-height:1.5;}
+.sg:hover .sg-txt,.sg:active .sg-txt{color:var(--t1);}
+
+.row{display:flex;gap:10px;padding:6px 16px;animation:msgIn .2s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.row.u{flex-direction:row-reverse;}
+.av{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;margin-top:2px;}
+.row.ai .av{background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;box-shadow:0 2px 10px rgba(108,99,255,.4);}
+.row.u .av{background:var(--s3);border:1px solid var(--b2);color:var(--t2);}
+.bub{max-width:78%;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:11px 14px;font-size:13.5px;line-height:1.75;color:var(--t1);word-break:break-word;}
+.row.u .bub{background:linear-gradient(135deg,rgba(108,99,255,.17),rgba(157,143,255,.09));border-color:rgba(108,99,255,.26);}
+.bub pre{background:#060610;border:1px solid var(--b2);border-radius:var(--rs);padding:13px 14px 12px;margin:10px 0;overflow-x:auto;position:relative;font-family:'JetBrains Mono',monospace;font-size:11.5px;line-height:1.65;-webkit-overflow-scrolling:touch;}
+.bub code{font-family:'JetBrains Mono',monospace;font-size:11.5px;}
+.bub p{margin-bottom:7px;}.bub p:last-child{margin-bottom:0;}
+.bub h1,.bub h2,.bub h3{margin:11px 0 5px;font-weight:700;color:var(--ac3);}
+.bub ul,.bub ol{margin:7px 0 7px 16px;}.bub li{margin-bottom:3px;}
+.bub strong{color:var(--ac3);font-weight:600;}
+.bub em{color:var(--t2);font-style:italic;}
+.bub a{color:var(--bl);text-decoration:underline;}
+.bub blockquote{border-left:3px solid var(--ac);padding-left:11px;color:var(--t2);margin:7px 0;}
+.bub hr{border:none;border-top:1px solid var(--b1);margin:10px 0;}
+.ic{background:rgba(108,99,255,.15);color:var(--ac3);padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11.5px;}
+.ltag{position:absolute;top:7px;left:11px;font-size:9px;color:var(--t3);font-family:'Syne',sans-serif;letter-spacing:1px;text-transform:uppercase;}
+.cpb{position:absolute;top:6px;right:7px;background:var(--s2);border:1px solid var(--b2);border-radius:4px;color:var(--t2);font-size:10px;padding:2px 8px;cursor:pointer;font-family:'Syne',sans-serif;transition:all .12s;display:none;}
+.bub pre:hover .cpb{display:block;}
+.cpb:hover{background:var(--s3);color:var(--t1);}
+.ts{font-size:10px;color:var(--t3);margin-top:3px;padding:0 2px;}
+.row.u .ts{text-align:right;}
+.typ-row{display:flex;gap:10px;padding:6px 16px;}
+.typ{display:flex;align-items:center;gap:5px;padding:10px 13px;}
+.td{width:6px;height:6px;border-radius:50%;background:var(--ac2);animation:td 1.2s infinite;}
+.td:nth-child(2){animation-delay:.2s}.td:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,80%,100%{transform:scale(.55);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* INPUT */
+#inp-area{padding:10px 12px 14px;border-top:1px solid var(--b1);background:rgba(8,8,15,.95);backdrop-filter:blur(14px);flex-shrink:0;}
+.inp-wrap{background:var(--s1);border:1px solid var(--b2);border-radius:var(--r);transition:border-color .2s,box-shadow .2s;overflow:hidden;}
+.inp-wrap:focus-within{border-color:rgba(108,99,255,.5);box-shadow:0 0 0 3px rgba(108,99,255,.09);}
+.itb{display:flex;align-items:center;gap:2px;padding:6px 8px 0;border-bottom:1px solid var(--b1);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+.itb::-webkit-scrollbar{display:none;}
+.itb-btn{padding:4px 9px;border:none;background:transparent;color:var(--t3);font-size:11px;font-family:'Syne',sans-serif;cursor:pointer;border-radius:5px;transition:all .12s;white-space:nowrap;flex-shrink:0;}
+.itb-btn:hover,.itb-btn:active{background:var(--s2);color:var(--t2);}
+.itb-btn.on{color:var(--ac2);background:rgba(108,99,255,.14);}
+.irow{display:flex;align-items:flex-end;gap:9px;padding:8px 10px;}
+#txt{flex:1;background:transparent;border:none;outline:none;color:var(--t1);font-size:15px;font-family:'Syne',sans-serif;resize:none;max-height:130px;line-height:1.6;min-height:22px;-webkit-appearance:none;}
+#txt::placeholder{color:var(--t3);}
+#snd{width:38px;height:38px;border:none;border-radius:11px;flex-shrink:0;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .18s;box-shadow:0 4px 14px rgba(108,99,255,.4);}
+#snd:hover{transform:scale(1.07);}#snd:active{transform:scale(.93);}
+#snd:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none;}
+.hint{text-align:center;font-size:10px;color:var(--t3);padding-top:6px;}
+.err-box{background:rgba(248,113,113,.09);border:1px solid rgba(248,113,113,.28);border-radius:var(--r);padding:10px 14px;margin:4px 16px;font-size:12.5px;color:var(--rd);line-height:1.6;}
+
+/* DELETE MODAL */
+#del-modal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(5px);padding:20px;}
+#del-modal.open{display:flex;}
+.mbox{background:var(--s1);border:1px solid var(--b2);border-radius:18px;padding:26px;width:100%;max-width:320px;animation:popIn .2s ease;}
+@keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:none;opacity:1}}
+.mbox h3{font-size:15px;font-weight:700;margin-bottom:8px;}
+.mbox p{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:20px;}
+.mbtns{display:flex;gap:8px;}
+.mbtn{flex:1;padding:10px;border:none;border-radius:var(--rs);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;}
+.mbtn.cancel{background:var(--s2);color:var(--t2);border:1px solid var(--b2);}
+.mbtn.del{background:rgba(248,113,113,.18);color:var(--rd);border:1px solid rgba(248,113,113,.3);}
+.mbtn.del:active{background:rgba(248,113,113,.32);}
+
+/* TOAST */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--s2);border:1px solid var(--b2);border-radius:30px;padding:8px 20px;font-size:12.5px;color:var(--t1);z-index:999;transition:transform .3s cubic-bezier(.34,1.36,.64,1);pointer-events:none;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+#toast.show{transform:translateX(-50%) translateY(0);}
+
+.kw{color:#c792ea;}.str{color:#c3e88d;}.cm{color:#546474;font-style:italic;}.num{color:#f78c6c;}
+
+/* MOBILE */
+@media(max-width:700px){
+  :root{--sbw:82vw;}
+  #sb{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%);}
+  #sb.open{transform:translateX(0);}
+  #menu-btn{display:flex !important;}
+  .bub{max-width:90%;}
+  .sugs{grid-template-columns:1fr;}
+  .wlc-title{font-size:22px;}
+  .badges .badge.k{display:none;}
+}
+@media(max-width:380px){
+  .badges .badge.t{display:none;}
+  .row{padding:5px 10px;}
+  #inp-area{padding:8px 8px 10px;}
+}
+</style>
+</head>
+<body>
+<canvas id="cvs"></canvas>
+<div id="overlay" onclick="closeSb()"></div>
+
+<div id="app">
+  <div id="sb">
+    <div class="sb-head">
+      <div class="sb-logo">
+        <div class="sb-orb">K</div>
+        <div><div class="sb-name">Kelvim</div><div class="sb-co">Kelvim Ltda</div></div>
+      </div>
+      <button class="new-btn" onclick="newChat()">＋ &nbsp;Nova conversa</button>
+    </div>
+    <div class="sb-sec">Conversas salvas</div>
+    <div id="hist-list"></div>
+    <div class="sb-foot">
+      <div class="sb-badge">
+        <div class="dot"></div>
+        <div class="sb-model"><strong>Kelvim · Groq Free</strong>Llama 3.3 70B — online</div>
+      </div>
+      <div class="sb-stats">
+        <div class="stat"><div class="stat-n" id="sc">0</div><div class="stat-l">Conversas</div></div>
+        <div class="stat"><div class="stat-n" id="sm">0</div><div class="stat-l">Mensagens</div></div>
+        <div class="stat"><div class="stat-n" id="sd">0</div><div class="stat-l">Dias</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="main">
+    <div id="hdr">
+      <button id="menu-btn" onclick="toggleSb()">&#9776;</button>
+      <div class="hdr-info">
+        <div class="hdr-title">Kelvim IA <span style="color:var(--t3);font-weight:400;font-size:10px;">· Kelvim Ltda</span></div>
+        <div id="hdr-sub" class="hdr-sub">Nova conversa</div>
+      </div>
+      <div class="badges">
+        <div class="badge c">💻 Código</div>
+        <div class="badge t">💬 Chat</div>
+        <div class="badge k">✨ Criação</div>
+      </div>
+    </div>
+
+    <div id="msgs">
+      <div id="wlc">
+        <div class="wlc-orb"></div>
+        <div class="wlc-title">Olá! Sou o <em>Kelvim</em></div>
+        <div class="wlc-sub">Criado pela <strong>Kelvim Ltda</strong>. Converse, peça código, tire dúvidas — tudo salvo automaticamente.</div>
+        <div class="sugs">
+          <div class="sg" onclick="sug('Crie um jogo da cobra completo em Python')"><div class="sg-ico">🐍</div><div class="sg-txt">Jogo da cobra em Python</div></div>
+          <div class="sg" onclick="sug('Como funciona inteligência artificial? Me explica de um jeito simples')"><div class="sg-ico">🧠</div><div class="sg-txt">Como funciona IA?</div></div>
+          <div class="sg" onclick="sug('Crie uma landing page moderna e bonita em HTML e CSS puro')"><div class="sg-ico">🌐</div><div class="sg-txt">Landing page em HTML/CSS</div></div>
+          <div class="sg" onclick="sug('Escreva uma história de ficção científica criativa e envolvente')"><div class="sg-ico">🚀</div><div class="sg-txt">História de ficção científica</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="inp-area">
+      <div class="inp-wrap">
+        <div class="itb">
+          <button class="itb-btn" id="cm-btn" onclick="toggleCM()">⌨ Código</button>
+          <button class="itb-btn" onclick="ins('```python\n\n```')">🐍 Py</button>
+          <button class="itb-btn" onclick="ins('```javascript\n\n```')">📜 JS</button>
+          <button class="itb-btn" onclick="ins('```html\n\n```')">🌐 HTML</button>
+          <button class="itb-btn" onclick="ins('```sql\n\n```')">🗄 SQL</button>
+          <button class="itb-btn" onclick="ins('```css\n\n```')">🎨 CSS</button>
+          <button class="itb-btn" onclick="saveNow()" style="margin-left:auto;">💾</button>
+          <button class="itb-btn" onclick="clearChat()">🗑</button>
+        </div>
+        <div class="irow">
+          <textarea id="txt" rows="1" placeholder="Pergunte qualquer coisa, peça código, converse..."></textarea>
+          <button id="snd" onclick="send()">&#10148;</button>
+        </div>
+      </div>
+      <div class="hint">Enter para enviar &nbsp;·&nbsp; Shift+Enter nova linha &nbsp;·&nbsp; Salvo automaticamente</div>
+    </div>
+  </div>
+</div>
+
+<div id="del-modal">
+  <div class="mbox">
+    <h3>🗑 Apagar conversa?</h3>
+    <p>Essa conversa será removida permanentemente do histórico.</p>
+    <div class="mbtns">
+      <button class="mbtn cancel" onclick="closeDel()">Cancelar</button>
+      <button class="mbtn del" onclick="confirmDel()">Apagar</button>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+// PARTICLES
+const cv=document.getElementById('cvs'),ct=cv.getContext('2d');
+let W,H,pts=[];
+function rsz(){W=cv.width=innerWidth;H=cv.height=innerHeight;}
+rsz();addEventListener('resize',()=>{rsz();if(innerWidth>700)closeSb();});
+for(let i=0;i<55;i++)pts.push({x:Math.random()*9999,y:Math.random()*9999,vx:(Math.random()-.5)*.22,vy:(Math.random()-.5)*.22,r:Math.random()*1.3+.4,a:Math.random()*Math.PI*2});
+(function loop(){ct.clearRect(0,0,W,H);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0)p.x=W;if(p.x>W)p.x=0;if(p.y<0)p.y=H;if(p.y>H)p.y=0;p.a+=.005;ct.beginPath();ct.arc(p.x%W,p.y%H,p.r,0,Math.PI*2);ct.fillStyle=`rgba(108,99,255,${.2+Math.sin(p.a)*.1})`;ct.fill();});requestAnimationFrame(loop);})();
+
+// API — chave em Base64 (não fica exposta em texto puro)
+const KEY = atob('Z3NrXzZEZlF2Y3F2S0xJakkzUmJEWEN1V0dkeWIzRllYYkh1aHRVZG9OeXd0Vm9YVUNTeTBHaVo=');
+const MDL = 'llama-3.3-70b-versatile';
+const SYS = `Você é Kelvim, um assistente de IA inteligente, simpático e extremamente capaz, criado pela Kelvim Ltda.
+- Conversa em português de forma natural e calorosa
+- Cria código perfeito em qualquer linguagem: Python, JS, HTML, CSS, C++, Java, SQL, Rust, Go, etc.
+- Explica conceitos de forma clara e didática
+- Ajuda com matemática, ciências, história, filosofia, arte, cultura, negócios
+- Escreve histórias, poemas, roteiros com criatividade
+- Formata com markdown: **negrito**, \`código inline\`, blocos \`\`\`lang, listas, títulos
+- Se perguntarem quem criou: "Fui criado pela Kelvim Ltda."`;
+
+// STORAGE
+const DB={
+  get(k,d=null){try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+};
+function loadDB(){return DB.get('kelvim_db',{convs:[],stats:{totalMsgs:0,firstDate:null}});}
+function saveDB(){DB.set('kelvim_db',db);}
+
+// STATE
+let db=loadDB(),curId=null,curMsgs=[],loading=false,codeMode=false,delTarget=null;
+if(!db.stats.firstDate){db.stats.firstDate=Date.now();saveDB();}
+renderSb();updateStats();
+
+// MOBILE
+function toggleSb(){const sb=document.getElementById('sb'),ov=document.getElementById('overlay');const o=sb.classList.toggle('open');ov.style.display=o?'block':'none';}
+function closeSb(){document.getElementById('sb').classList.remove('open');document.getElementById('overlay').style.display='none';}
+
+// SIDEBAR
+function renderSb(){
+  const list=document.getElementById('hist-list');
+  list.innerHTML='';
+  const convs=[...db.convs].reverse();
+  if(!convs.length){list.innerHTML='<div style="padding:16px 14px;font-size:12px;color:var(--t3);text-align:center;">Nenhuma conversa ainda.<br>Comece a conversar!</div>';return;}
+  let lastDay='';
+  convs.forEach(c=>{
+    const d=new Date(c.date);
+    const day=isToday(d)?'Hoje':isYest(d)?'Ontem':d.toLocaleDateString('pt-BR',{day:'2-digit',month:'short'});
+    if(day!==lastDay){const s=document.createElement('div');s.style.cssText='font-size:10px;color:var(--t3);padding:8px 14px 3px;';s.textContent=day;list.appendChild(s);lastDay=day;}
+    const n=c.msgs.filter(m=>m.role==='user').length;
+    const el=document.createElement('div');
+    el.className='hi'+(c.id===curId?' on':'');
+    el.innerHTML=`<span class="hi-ico">💬</span><div class="hi-info"><div class="hi-title">${esc(c.title)}</div><div class="hi-meta">${n} msg${n!==1?'s':''}</div></div><button class="hi-del" onclick="askDel('${c.id}',event)">✕</button>`;
+    el.addEventListener('click',e=>{if(!e.target.classList.contains('hi-del')){loadConv(c.id);if(innerWidth<=700)closeSb();}});
+    list.appendChild(el);
+  });
+}
+function isToday(d){return d.toDateString()===new Date().toDateString();}
+function isYest(d){const y=new Date();y.setDate(y.getDate()-1);return d.toDateString()===y.toDateString();}
+function updateStats(){
+  document.getElementById('sc').textContent=db.convs.length;
+  document.getElementById('sm').textContent=db.stats.totalMsgs||0;
+  const days=db.stats.firstDate?Math.max(1,Math.ceil((Date.now()-db.stats.firstDate)/86400000)):1;
+  document.getElementById('sd').textContent=days;
+}
+
+// CONV
+function loadConv(id){
+  const c=db.convs.find(x=>x.id===id);if(!c)return;
+  curId=id;curMsgs=c.msgs.map(m=>({role:m.role,content:m.content}));
+  document.getElementById('msgs').innerHTML='';
+  document.getElementById('hdr-sub').textContent=c.title;
+  c.msgs.forEach(m=>addDOM(m.role,m.content,m.time,false));
+  document.getElementById('msgs').scrollTop=999999;
+  renderSb();
+}
+function newChat(){
+  curId=null;curMsgs=[];
+  document.getElementById('msgs').innerHTML='';
+  buildWlc();
+  document.getElementById('hdr-sub').textContent='Nova conversa';
+  renderSb();
+  setTimeout(()=>document.getElementById('txt').focus(),100);
+}
+function buildWlc(){
+  const w=document.createElement('div');w.id='wlc';
+  w.innerHTML=`<div class="wlc-orb"></div><div class="wlc-title">Olá! Sou o <em>Kelvim</em></div><div class="wlc-sub">Criado pela <strong>Kelvim Ltda</strong>. Converse, peça código, tire dúvidas — tudo salvo automaticamente.</div><div class="sugs"><div class="sg" onclick="sug('Crie um jogo da cobra completo em Python')"><div class="sg-ico">🐍</div><div class="sg-txt">Jogo da cobra em Python</div></div><div class="sg" onclick="sug('Como funciona inteligência artificial? Me explica de um jeito simples')"><div class="sg-ico">🧠</div><div class="sg-txt">Como funciona IA?</div></div><div class="sg" onclick="sug('Crie uma landing page moderna e bonita em HTML e CSS puro')"><div class="sg-ico">🌐</div><div class="sg-txt">Landing page em HTML/CSS</div></div><div class="sg" onclick="sug('Escreva uma história de ficção científica criativa e envolvente')"><div class="sg-ico">🚀</div><div class="sg-txt">História de ficção científica</div></div></div>`;
+  document.getElementById('msgs').appendChild(w);
+}
+
+// SAVE
+function autoSave(){
+  if(!curMsgs.length)return;
+  const title=curMsgs.find(m=>m.role==='user')?.content?.slice(0,44)||'Conversa';
+  if(!curId){curId='c'+Date.now()+Math.random().toString(36).slice(2,5);db.convs.push({id:curId,title,date:Date.now(),msgs:[]});}
+  const c=db.convs.find(x=>x.id===curId);
+  if(c){c.msgs=curMsgs.map(m=>({...m}));c.title=title;}
+  db.stats.totalMsgs=db.convs.reduce((a,c)=>a+c.msgs.filter(m=>m.role==='user').length,0);
+  saveDB();renderSb();updateStats();
+}
+function saveNow(){autoSave();toast('💾 Salvo!');}
+
+// DELETE
+function askDel(id,e){e.stopPropagation();delTarget=id;document.getElementById('del-modal').classList.add('open');}
+function closeDel(){document.getElementById('del-modal').classList.remove('open');delTarget=null;}
+function confirmDel(){
+  if(!delTarget)return;
+  db.convs=db.convs.filter(c=>c.id!==delTarget);
+  db.stats.totalMsgs=db.convs.reduce((a,c)=>a+c.msgs.filter(m=>m.role==='user').length,0);
+  saveDB();if(curId===delTarget)newChat();
+  renderSb();updateStats();closeDel();toast('🗑 Apagado');
+}
+
+// DOM
+function addDOM(role,content,time,scroll=true){
+  const wlc=document.getElementById('wlc');if(wlc)wlc.remove();
+  const c=document.getElementById('msgs'),t=time||now();
+  const row=document.createElement('div');row.className=`row ${role==='user'?'u':'ai'}`;
+  const html=role==='user'?esc(content).replace(/\n/g,'<br>'):renderMd(content);
+  row.innerHTML=`<div class="av">${role==='user'?'👤':'K'}</div><div><div class="bub">${html}</div><div class="ts">${t}</div></div>`;
+  c.appendChild(row);if(scroll)c.scrollTop=999999;
+}
+
+// MARKDOWN
+function renderMd(t){
+  let h=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  h=h.replace(/```(\w*)\n?([\s\S]*?)```/g,(_,l,c)=>`<pre><span class="ltag">${l||''}</span><button class="cpb" onclick="cpCode(this)">Copiar</button><code>${synHL(c.trim(),l)}</code></pre>`);
+  h=h.replace(/`([^`\n]+)`/g,'<code class="ic">$1</code>');
+  h=h.replace(/^### (.+)$/gm,'<h3>$1</h3>');h=h.replace(/^## (.+)$/gm,'<h2>$1</h2>');h=h.replace(/^# (.+)$/gm,'<h1>$1</h1>');
+  h=h.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');h=h.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  h=h.replace(/^&gt; (.+)$/gm,'<blockquote>$1</blockquote>');
+  h=h.replace(/^---$/gm,'<hr>');
+  h=h.replace(/^\d+\. (.+)$/gm,'<li>$1</li>');h=h.replace(/^[-*] (.+)$/gm,'<li>$1</li>');
+  h=h.replace(/(<li>.*<\/li>\n?)+/g,m=>`<ul>${m}</ul>`);
+  h=h.replace(/\[([^\]]+)\]\(([^)]+)\)/g,'<a href="$2" target="_blank">$1</a>');
+  h=h.split('\n\n').map(p=>{if(!p.trim())return'';if(/^<(h[1-3]|pre|ul|blockquote|hr)/.test(p))return p;return`<p>${p.replace(/\n/g,'<br>')}</p>`;}).join('');
+  return h;
+}
+function synHL(code,lang){
+  let c=code.replace(/\/\/[^\n]*/g,m=>`<span class="cm">${m}</span>`).replace(/#[^\n]*/g,m=>`<span class="cm">${m}</span>`).replace(/(["'`])((?:\\.|(?!\1)[^\\])*?)\1/g,m=>`<span class="str">${m}</span>`).replace(/\b(\d+\.?\d*)\b/g,'<span class="num">$1</span>');
+  const kws=lang==='python'?['def','class','import','from','return','if','elif','else','for','while','in','and','or','not','True','False','None','try','except','with','as','pass','break','continue','lambda','yield','async','await']:['function','const','let','var','return','if','else','for','while','class','import','export','from','new','this','typeof','async','await','try','catch','true','false','null','undefined','switch','case','break','default','type','interface','extends'];
+  return c.replace(new RegExp(`\\b(${kws.join('|')})\\b`,'g'),'<span class="kw">$1</span>');
+}
+function cpCode(btn){navigator.clipboard.writeText(btn.parentElement.querySelector('code').textContent).then(()=>{btn.textContent='✓ Copiado!';btn.style.color='#10b981';setTimeout(()=>{btn.textContent='Copiar';btn.style.color='';},2000);});}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function now(){return new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+
+// TYPING
+let typEl=null;
+function showTyp(){const c=document.getElementById('msgs');typEl=document.createElement('div');typEl.className='typ-row';typEl.innerHTML='<div class="av" style="width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--ac),var(--ac2));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex-shrink:0;margin-top:2px;">K</div><div class="bub"><div class="typ"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>';c.appendChild(typEl);c.scrollTop=999999;}
+function hideTyp(){if(typEl){typEl.remove();typEl=null;}}
+
+// SEND
+async function send(){
+  const el=document.getElementById('txt'),text=el.value.trim();
+  if(!text||loading)return;
+  el.value='';el.style.height='auto';
+  loading=true;document.getElementById('snd').disabled=true;
+  const t=now();
+  curMsgs.push({role:'user',content:text,time:t});
+  addDOM('user',text,t);showTyp();
+  try{
+    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${KEY}`},
+      body:JSON.stringify({model:MDL,max_tokens:4096,temperature:0.75,messages:[{role:'system',content:SYS},...curMsgs.map(m=>({role:m.role,content:m.content}))]})
+    });
+    hideTyp();
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`Erro HTTP ${res.status}`);}
+    const data=await res.json();
+    const reply=data.choices?.[0]?.message?.content||'Sem resposta.';
+    const rt=now();
+    curMsgs.push({role:'assistant',content:reply,time:rt});
+    addDOM('assistant',reply,rt);
+    autoSave();
+    document.getElementById('hdr-sub').textContent=curMsgs.find(m=>m.role==='user')?.content?.slice(0,40)||'Conversa';
+  }catch(e){
+    hideTyp();
+    const err=document.createElement('div');err.className='err-box';
+    err.innerHTML=`⚠️ <strong>${esc(e.message)}</strong><br><small style="opacity:.75">Este arquivo precisa ser aberto via servidor (http://) e não como arquivo local (file://). Hospede no GitHub Pages, Netlify ou qualquer servidor web gratuito.</small>`;
+    document.getElementById('msgs').appendChild(err);
+    document.getElementById('msgs').scrollTop=999999;
+    curMsgs.pop();
+  }
+  loading=false;document.getElementById('snd').disabled=false;document.getElementById('txt').focus();
+}
+
+function sug(t){document.getElementById('txt').value=t;send();}
+function clearChat(){if(confirm('Limpar conversa atual?'))newChat();}
+function toggleCM(){codeMode=!codeMode;document.getElementById('cm-btn').classList.toggle('on',codeMode);document.getElementById('txt').placeholder=codeMode?'Descreva o código...':'Pergunte qualquer coisa, peça código, converse...';}
+function ins(t){const el=document.getElementById('txt'),s=el.selectionStart;el.value=el.value.slice(0,s)+t+el.value.slice(el.selectionEnd);el.focus();ar(el);}
+function ar(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,130)+'px';}
+let toastT;
+function toast(m){const el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),2500);}
+const tx=document.getElementById('txt');
+tx.addEventListener('input',()=>ar(tx));
+tx.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}});
+document.getElementById('del-modal').addEventListener('click',e=>{if(e.target===document.getElementById('del-modal'))closeDel();});
+</script>
+</body>
+</html>
